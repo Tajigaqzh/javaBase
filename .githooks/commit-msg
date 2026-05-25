@@ -1,0 +1,51 @@
+#!/bin/sh
+
+set -eu
+
+MSG_FILE="$1"
+
+if [ ! -f "$MSG_FILE" ]; then
+    echo "Commit message file not found."
+    exit 1
+fi
+
+SUMMARY_LINE="$(sed -n '1p' "$MSG_FILE" | tr -d '\r')"
+
+if [ -z "$SUMMARY_LINE" ]; then
+    echo "Commit blocked: the first line of the commit message must be a summary."
+    exit 1
+fi
+
+require_section() {
+    pattern="$1"
+    label="$2"
+    if ! grep -Eq "$pattern" "$MSG_FILE"; then
+        echo "Commit blocked: missing required section -> $label"
+        exit 1
+    fi
+}
+
+require_section '^(Files|涉及文件):[[:space:]]*\S+' 'Files: or 涉及文件:'
+require_section '^(Impact|影响范围):[[:space:]]*\S+' 'Impact: or 影响范围:'
+require_section '^(Scope|变更类型):[[:space:]]*\S+' 'Scope: or 变更类型:'
+require_section '^(DB|数据库变更):[[:space:]]*\S+' 'DB: or 数据库变更:'
+require_section '^(API|接口影响):[[:space:]]*\S+' 'API: or 接口影响:'
+require_section '^(Tests|测试):[[:space:]]*\S+' 'Tests: or 测试:'
+
+if ! grep -Eiq '^(Scope|变更类型):[[:space:]]*(feature|fix|refactor|test|config|docs)$' "$MSG_FILE"; then
+    echo "Commit blocked: Scope:/变更类型: must be one of feature, fix, refactor, test, config, docs."
+    exit 1
+fi
+
+if ! grep -Eq '^(Tests|测试):.*(自测|smoke|manual|相关测试|mvnw test|compile|通过|passed)' "$MSG_FILE"; then
+    echo "Commit blocked: Tests:/测试: must include self-test or test execution details."
+    exit 1
+fi
+
+if grep -Eiq '^(API|接口影响):' "$MSG_FILE" && \
+   ! grep -Eq '^(API|接口影响):.*(新增|修改|删除|无接口变更|无接口影响|新增接口|修改接口|删除接口|/[^ ]+)' "$MSG_FILE"; then
+    echo "Commit blocked: API:/接口影响: should describe add/update/delete semantics or concrete API paths."
+    exit 1
+fi
+
+echo "Commit message checks passed."

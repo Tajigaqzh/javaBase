@@ -1,0 +1,101 @@
+#!/bin/sh
+
+set -eu
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+cd "$ROOT_DIR"
+
+STAGED_FILES="$(git diff --cached --name-only --diff-filter=ACMR)"
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+echo "==> Staged files"
+printf '%s\n' "$STAGED_FILES"
+
+JAVA_CHANGED=0
+CODE_CHANGED=0
+CONTROLLER_CHANGED=0
+MISSING_TESTS=0
+
+for file in $STAGED_FILES; do
+    case "$file" in
+        src/main/java/*.java|src/main/java/*/*.java|src/main/java/*/*/*.java|src/main/java/*/*/*/*.java|src/main/resources/*|pom.xml)
+            CODE_CHANGED=1
+            ;;
+    esac
+    case "$file" in
+        src/main/java/*.java|src/main/java/*/*.java|src/main/java/*/*/*.java|src/main/java/*/*/*/*.java)
+            JAVA_CHANGED=1
+            ;;
+    esac
+    case "$file" in
+        src/main/java/*/controller/*Controller.java|src/main/java/*/*/controller/*Controller.java|src/main/java/*/*/*/controller/*Controller.java)
+            CONTROLLER_CHANGED=1
+            ;;
+    esac
+done
+
+detect_test_for_class() {
+    class_name="$1"
+    find src/test/java -type f -name "${class_name}Tests.java" | grep -q .
+}
+
+if [ "$CONTROLLER_CHANGED" -eq 1 ]; then
+    echo "==> Checking controller test coverage"
+    for file in $STAGED_FILES; do
+        case "$file" in
+            src/main/java/*/controller/*Controller.java|src/main/java/*/*/controller/*Controller.java|src/main/java/*/*/*/controller/*Controller.java)
+                class_name="$(basename "$file" .java)"
+                if detect_test_for_class "$class_name"; then
+                    echo "PASS: found test for $class_name"
+                else
+                    echo "FAIL: missing test file for controller $class_name"
+                    echo "Expected a test such as ${class_name}Tests.java under src/test/java"
+                    MISSING_TESTS=1
+                fi
+                ;;
+        esac
+    done
+fi
+
+if [ "$MISSING_TESTS" -eq 1 ]; then
+    echo "Commit blocked: controller changes require matching test files."
+    exit 1
+fi
+
+if [ "$CODE_CHANGED" -eq 1 ]; then
+    echo "==> Impact summary"
+    for file in $STAGED_FILES; do
+        case "$file" in
+            src/main/java/*/controller/*|src/main/java/*/*/controller/*|src/main/java/*/*/*/controller/*)
+                echo "- API layer changed: $file"
+                ;;
+            src/main/java/*/service/*|src/main/java/*/*/service/*|src/main/java/*/*/*/service/*)
+                echo "- Service behavior may change: $file"
+                ;;
+            src/main/java/*/mapper/*|src/main/java/*/*/mapper/*|src/main/java/*/*/*/mapper/*|src/main/resources/mapper/*)
+                echo "- Persistence mapping changed: $file"
+                ;;
+            src/main/java/*/config/*|src/main/java/*/*/config/*|src/main/java/*/*/*/config/*|src/main/resources/application.yml|src/main/resources/application.properties|pom.xml)
+                echo "- Shared configuration changed: $file"
+                ;;
+            src/main/java/*/common/*|src/main/java/*/*/common/*|src/main/java/*/*/*/common/*)
+                echo "- Shared common component changed: $file"
+                ;;
+        esac
+    done
+fi
+
+if [ "$JAVA_CHANGED" -eq 1 ]; then
+    echo "==> Running compile gate"
+    ./mvnw -q -DskipTests clean compile
+fi
+
+if [ "$CODE_CHANGED" -eq 1 ]; then
+    echo "==> Running test gate"
+    ./mvnw -q test
+fi
+
+echo "Pre-commit checks passed."
