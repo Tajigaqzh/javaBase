@@ -5,7 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.hp.javabase.common.response.BaseResponse;
 import com.hp.javabase.common.utils.resonse.ResponseUtils;
 import com.hp.javabase.model.vo.ObjectStorageUploadTokenVO;
-import com.hp.javabase.service.ObjectStorageService;
+import com.hp.javabase.service.common.ObjectStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.hp.javabase.model.enums.ObjectStorageProviderEnum;
 import com.hp.javabase.model.vo.ObjectStorageUploadTokenVO;
-import com.hp.javabase.service.ObjectStorageService;
+import com.hp.javabase.service.common.ObjectStorageService;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;

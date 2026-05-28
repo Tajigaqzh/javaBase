@@ -7,7 +7,7 @@ import com.hp.javabase.common.exception.RateLimitException;
 import com.hp.javabase.common.response.BaseResponse;
 import com.hp.javabase.common.response.ResponseCodeEnum;
 import com.hp.javabase.common.utils.resonse.ResponseUtils;
-import com.hp.javabase.service.FeishuBotService;
+import com.hp.javabase.service.common.FeishuBotService;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;

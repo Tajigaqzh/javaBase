@@ -2,7 +2,7 @@ package com.hp.javabase.config;
 
 import cn.dev33.satoken.stp.StpInterface;
 import com.hp.javabase.model.entity.User;
-import com.hp.javabase.service.AuthService;
+import com.hp.javabase.service.login.AuthService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
