@@ -1,4 +1,4 @@
-package com.hp.javabase.common.utils;
+package com.hp.javabase.common.utils.resonse;
 
 import com.hp.javabase.common.response.BaseResponse;
 import com.hp.javabase.common.response.ResponseCodeEnum;

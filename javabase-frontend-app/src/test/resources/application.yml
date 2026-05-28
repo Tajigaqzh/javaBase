@@ -1,9 +1,24 @@
 spring:
   application:
     name: javabase-frontend-app
+  profiles:
+    default: dev
+  mail:
+    host: ${SPRING_MAIL_HOST:}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    protocol: ${SPRING_MAIL_PROTOCOL:smtp}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${SPRING_MAIL_SMTP_STARTTLS_ENABLE:true}
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://localhost:3306/javabase?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8
+    url: jdbc:mysql://192.168.31.103:3306/javabase?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8
     username: javabase
     password: javabase123
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -18,7 +33,7 @@ spring:
       mode: never
   data:
     redis:
-      host: localhost
+      host: 192.168.31.103
       port: 6379
       database: 0
 mybatis-plus:
@@ -34,7 +49,34 @@ openai:
   base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
   chat:
     model: ${OPENAI_CHAT_MODEL:gpt-5.4-mini}
+  image:
+    model: ${OPENAI_IMAGE_MODEL:gpt-image-1}
+  embedding:
+    model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
+sa-token:
+  token-name: satoken
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: false
+  is-share: false
+  token-style: uuid
+  is-log: true
 springdoc:
   api-docs:
-    enabled: true
+    enabled: ${SPRINGDOC_ENABLED:false}
     path: /v3/api-docs
+app:
+  auth:
+    expose-verification-code-in-response: false
+  sms:
+    aliyun:
+      enabled: ${ALIYUN_SMS_ENABLED:false}
+      region: ${ALIYUN_SMS_REGION:ap-southeast-1}
+      endpoint: ${ALIYUN_SMS_ENDPOINT:dypnsapi.aliyuncs.com}
+      sign-name: ${ALIYUN_SMS_SIGN_NAME:速通互联验证码}
+      verify-code-template-code: ${ALIYUN_SMS_VERIFY_CODE_TEMPLATE_CODE:100001}
+  mail:
+    smtp:
+      enabled: ${APP_MAIL_SMTP_ENABLED:false}
+      from: ${APP_MAIL_SMTP_FROM:}
+      verification-subject: ${APP_MAIL_SMTP_VERIFICATION_SUBJECT:【JavaBase】邮箱验证码}

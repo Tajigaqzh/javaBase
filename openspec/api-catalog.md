@@ -24,10 +24,20 @@
 
 | 路径 | 方法 | 所属模块 | 鉴权要求 | 状态 | 说明 |
 |---|---|---|---|---|---|
-| `/auth/login` | `POST` | `javabase-frontend-app` | 无 | `已实现` | 当前仅支持按用户名演示登录，后续会扩展设备信息与更完整认证方式 |
+| `/auth/code/phone/send` | `POST` | `javabase-frontend-app` | 无 | `已实现` | 发送手机号验证码，执行发送冷却与频控 |
+| `/auth/code/email/send` | `POST` | `javabase-frontend-app` | 无 | `已实现` | 发送邮箱验证码，执行发送冷却与频控 |
+| `/auth/register/phone` | `POST` | `javabase-frontend-app` | 无 | `已实现` | 手机号注册，必须完成短信验证码校验并直接建立登录态 |
+| `/auth/login/password` | `POST` | `javabase-frontend-app` | 无 | `已实现` | 手机号密码登录，记录设备和登录日志 |
+| `/auth/login/phone-code` | `POST` | `javabase-frontend-app` | 无 | `已实现` | 手机号验证码登录，记录设备和登录日志 |
 | `/auth/logout` | `POST` | `javabase-frontend-app` | 已登录 | `已实现` | 退出当前登录态 |
+| `/auth/logout-all` | `POST` | `javabase-frontend-app` | 已登录 | `已实现` | 退出当前账号全部设备，支持保留当前设备 |
 | `/auth/me` | `GET` | `javabase-frontend-app` | 已登录 | `已实现` | 查询当前登录用户信息 |
 | `/auth/token-info` | `GET` | `javabase-frontend-app` | 已登录 | `已实现` | 查询当前 Sa-Token 元信息，偏调试用途 |
+| `/auth/password/set` | `POST` | `javabase-frontend-app` | 无 | `已实现` | 首次设置密码或待补全账号补设密码 |
+| `/auth/password/forgot/reset` | `POST` | `javabase-frontend-app` | 无 | `已实现` | 通过手机号验证码或邮箱验证码重置密码 |
+| `/auth/password/change` | `POST` | `javabase-frontend-app` | 已登录 | `已实现` | 已登录状态下修改密码，必须校验旧密码 |
+| `/auth/session/list` | `GET` | `javabase-frontend-app` | 已登录 | `已实现` | 查询当前账号已登录设备列表 |
+| `/auth/session/kickout` | `POST` | `javabase-frontend-app` | 已登录 | `已实现` | 踢掉指定设备，不允许踢当前设备 |
 
 ### 3.2 示例接口
 
@@ -70,19 +80,14 @@
 
 | 路径 | 方法 | 所属模块 | 鉴权要求 | 状态 | 说明 |
 |---|---|---|---|---|---|
-| `/auth/session/list` | `GET` | `javabase-frontend-app` | 已登录 | `仅方案` | 查询当前账号已登录设备列表 |
-| `/auth/session/kickout` | `POST` | `javabase-frontend-app` | 已登录 | `仅方案` | 踢掉指定设备或指定会话 |
-| `/auth/logout-all` | `POST` | `javabase-frontend-app` | 已登录 | `仅方案` | 退出当前账号全部设备 |
+| `/auth/account/recover` | `POST` | `javabase-frontend-app` | 无 | `仅方案` | 恢复已注销但可恢复账号 |
 
 ### 7.2 前台注册与多方式登录
 
 | 路径 | 方法 | 所属模块 | 鉴权要求 | 状态 | 说明 |
 |---|---|---|---|---|---|
-| `/auth/register/phone` | `POST` | `javabase-frontend-app` | 无 | `仅方案` | 手机号注册 |
 | `/auth/register/email` | `POST` | `javabase-frontend-app` | 无 | `仅方案` | 邮箱注册 |
 | `/auth/register/qq` | `POST` | `javabase-frontend-app` | 无 | `仅方案` | QQ 注册或首次绑定 |
-| `/auth/login/password` | `POST` | `javabase-frontend-app` | 无 | `仅方案` | 密码登录 |
-| `/auth/login/phone-code` | `POST` | `javabase-frontend-app` | 无 | `仅方案` | 手机验证码登录 |
 | `/auth/login/email-code` | `POST` | `javabase-frontend-app` | 无 | `仅方案` | 邮箱验证码登录 |
 | `/auth/login/qq` | `POST` | `javabase-frontend-app` | 无 | `仅方案` | QQ 登录 |
 
@@ -101,8 +106,15 @@
 | `/admin/auth/login` | `POST` | `javabase-admin-app` | 无 | `仅方案` | 后台登录 |
 | `/admin/auth/logout` | `POST` | `javabase-admin-app` | 后台已登录 | `仅方案` | 后台退出 |
 | `/admin/auth/session/kickout` | `POST` | `javabase-admin-app` | 后台已登录 | `仅方案` | 后台强制设备下线 |
-| `/admin/user/list` | `GET` | `javabase-admin-app` | 后台已登录 | `仅方案` | 后台用户管理列表 |
+| `/admin/auth/login-log/page` | `GET` | `javabase-admin-app` | 后台已登录 | `仅方案` | 分页查看登录日志，第一阶段至少支持手机号、终端类型、登录状态、时间范围、设备ID、IP 筛选 |
+| `/admin/auth/session/list` | `GET` | `javabase-admin-app` | 后台已登录 | `仅方案` | 查看用户在线设备会话 |
+| `/admin/user/create` | `POST` | `javabase-admin-app` | 后台已登录 | `仅方案` | 后台创建用户，默认进入待补全状态 |
+| `/admin/user/list` | `GET` | `javabase-admin-app` | 后台已登录 | `仅方案` | 后台用户管理列表，可覆盖后台创建用户、待补全状态和补激活场景 |
 | `/admin/user/disable` | `POST` | `javabase-admin-app` | 后台已登录 | `仅方案` | 禁用用户 |
+| `/admin/user/enable` | `POST` | `javabase-admin-app` | 后台已登录 | `仅方案` | 解禁用户 |
+| `/admin/user/freeze` | `POST` | `javabase-admin-app` | 后台已登录 | `仅方案` | 冻结用户 |
+| `/admin/user/unfreeze` | `POST` | `javabase-admin-app` | 后台已登录 | `仅方案` | 解冻用户 |
+| `/admin/user/reset-password` | `POST` | `javabase-admin-app` | 后台已登录 | `仅方案` | 管理员重置密码，用户下次登录强制改密 |
 
 ## 9. 当前接口层面的明确约束
 

@@ -21,9 +21,6 @@ public class SaTokenPermissionConfig {
                 if (user == null) {
                     return Collections.emptyList();
                 }
-                if ("admin".equals(user.getUsername())) {
-                    return List.of("user:read", "user:write", "ai:chat");
-                }
                 return List.of("user:read", "ai:chat");
             }
 
@@ -32,9 +29,6 @@ public class SaTokenPermissionConfig {
                 User user = authService.findByLoginId(loginId);
                 if (user == null) {
                     return Collections.emptyList();
-                }
-                if ("admin".equals(user.getUsername())) {
-                    return List.of("admin");
                 }
                 return List.of("user");
             }

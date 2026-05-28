@@ -6,25 +6,45 @@
 
     <resultMap id="BaseResultMap" type="com.hp.javabase.model.entity.User">
         <id column="id" property="id"/>
-        <result column="username" property="username"/>
-        <result column="password" property="password"/>
+        <result column="user_no" property="userNo"/>
+        <result column="password_hash" property="passwordHash"/>
         <result column="nickname" property="nickname"/>
         <result column="email" property="email"/>
         <result column="phone" property="phone"/>
         <result column="status" property="status"/>
+        <result column="register_source" property="registerSource"/>
+        <result column="is_phone_verified" property="isPhoneVerified"/>
+        <result column="is_email_verified" property="isEmailVerified"/>
+        <result column="login_fail_count" property="loginFailCount"/>
+        <result column="login_lock_expire_time" property="loginLockExpireTime"/>
+        <result column="last_login_time" property="lastLoginTime"/>
+        <result column="last_login_ip" property="lastLoginIp"/>
+        <result column="is_delete" property="isDelete"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, username, password, nickname, email, phone, status, create_time, update_time
+        id, user_no, password_hash, nickname, email, phone, status, register_source,
+        is_phone_verified, is_email_verified, login_fail_count, login_lock_expire_time,
+        last_login_time, last_login_ip, is_delete, create_time, update_time
     </sql>
 
-    <select id="selectByUsername" resultMap="BaseResultMap">
+    <select id="selectByPhone" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
-        from user
-        where username = #{username}
+        from javabase_user
+        where phone = #{phone}
+          and is_delete = 0
+        limit 1
+    </select>
+
+    <select id="selectByEmail" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from javabase_user
+        where email = #{email}
+          and is_delete = 0
         limit 1
     </select>
 
